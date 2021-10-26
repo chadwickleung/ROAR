@@ -30,7 +30,7 @@ def showIPUntilAck():
     img = np.array(qrcode.make(f"{get_ip()}").convert('RGB'))
     success = False
     addr = None
-
+    print("Displaying QR Code")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
