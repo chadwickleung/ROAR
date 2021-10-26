@@ -68,9 +68,10 @@ class ArucoFollowingAgent(Agent):
         left_threshold = -0.5
         right_threshold = 0.5
 
+
         distance = tvec[depth]
         position = tvec[horizontal]
-        if distance < threshold:
+        if distance < depth_threshold:
             print("Slow down")
         else:
             if position < left_threshold:
