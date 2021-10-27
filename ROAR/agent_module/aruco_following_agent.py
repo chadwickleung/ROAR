@@ -55,11 +55,11 @@ class ArucoFollowingAgent(Agent):
                     print("Stop")
                     return VehicleControl(throttle = 0, steering = 0)
                 elif x < self.left_threshold:
-                    print("Turn right")
-                    return VehicleControl(throttle = 0.2, steering = 0.1)
-                elif x > self.right_threshold:
                     print("Turn left")
-                    return VehicleControl(throttle = 0.2, steering = -0.1)
+                    return VehicleControl(throttle = 0.2, steering = -1)
+                elif x > self.right_threshold:
+                    print("Turn right")
+                    return VehicleControl(throttle = 0.2, steering = 1)
 
         return self.vehicle.control
 
