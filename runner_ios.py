@@ -6,6 +6,7 @@ from ROAR_iOS.config_model import iOSConfig
 # from ROAR.agent_module.free_space_auto_agent import FreeSpaceAutoAgent
 # from ROAR.agent_module.line_following_agent_2 import LineFollowingAgent
 # from ROAR.agent_module.special_agents.recording_agent import RecordingAgent
+from ROAR.agent_module.aruco_following_agent import ArucoFollowingAgent
 from ROAR.agent_module.forward_only_agent import ForwardOnlyAgent
 from ROAR.utilities_module.vehicle_models import Vehicle
 import logging
@@ -17,7 +18,6 @@ import cv2
 import numpy as np
 import socket
 import json
-
 
 
 class mode_list(list):
