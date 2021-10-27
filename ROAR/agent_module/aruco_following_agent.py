@@ -15,6 +15,8 @@ class ArucoFollowingAgent(Agent):
         self.tracking_id = 0
         self.marker_length = 0.005       # in meters
         self.distance_threshold = 0.012  # in tvec unit
+        self.left_threshold = 0.0018
+        self.right_threshold = 0.013
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super().run_step(sensors_data=sensors_data, vehicle=vehicle)
@@ -28,12 +30,12 @@ class ArucoFollowingAgent(Agent):
                                                                                self.front_rgb_camera.distortion_coefficient)
                 x, y, z = tvec[0][0]
                 print(x,y,z)
-                cv2.aruco.drawAxis(img,
-                                   self.front_rgb_camera.intrinsics_matrix,
-                                   self.front_rgb_camera.distortion_coefficient,
-                                   rvec,
-                                   tvec,
-                                   self.marker_length)
+                # cv2.aruco.drawAxis(img,
+                #                    self.front_rgb_camera.intrinsics_matrix,
+                #                    self.front_rgb_camera.distortion_coefficient,
+                #                    rvec,
+                #                    tvec,
+                #                    self.marker_length)
 
                 cv2.putText(img, f"{tvec}",
                             (10, 50),
@@ -50,8 +52,14 @@ class ArucoFollowingAgent(Agent):
                 cv2.waitKey(1)
 
                 if z < self.distance_threshold:
-                    print("Stop!")
+                    print("Stop")
                     return VehicleControl(throttle = 0, steering = 0)
+                elif x < self.left_threshold:
+                    print("Turn right")
+                    return VehicleControl(throttle = 0.2, steering = 0.1)
+                elif x > self.right_threshold:
+                    print("Turn left")
+                    return VehicleControl(throttle = 0.2, steering = -0.1)
 
         return self.vehicle.control
 
