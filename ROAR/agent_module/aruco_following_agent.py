@@ -13,7 +13,8 @@ class ArucoFollowingAgent(Agent):
         self.arucoDict = aruco.Dictionary_get(key)
         self.arucoParam = aruco.DetectorParameters_create()
         self.tracking_id = 0
-        self.marker_length = 0.1  # in meters
+        self.marker_length = 0.005       # in meters
+        self.distance_threshold = 0.012  # in tvec unit
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super().run_step(sensors_data=sensors_data, vehicle=vehicle)
@@ -48,7 +49,7 @@ class ArucoFollowingAgent(Agent):
                 cv2.imshow("img", img)
                 cv2.waitKey(1)
 
-                if z < self.marker_length:
+                if z < self.distance_threshold:
                     print("Stop!")
                     return VehicleControl(throttle = 0, steering = 0)
 
