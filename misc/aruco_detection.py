@@ -26,7 +26,7 @@ def main(markerSize, totalMarkers, intrinsics: np.ndarray, distortion:np.ndarray
                 for i in range(0, len(ids)):
                     # Estimate pose of each marker and return the values rvec and tvec---
                     #   (different from those of camera coefficients)
-                    rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02,
+                    rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.005,
                                                                                    intrinsics,
                                                                                    distortion)
                     # Draw a square around the markers
@@ -34,7 +34,13 @@ def main(markerSize, totalMarkers, intrinsics: np.ndarray, distortion:np.ndarray
 
                     # Draw Axis
                     cv2.aruco.drawAxis(img, intrinsics, distortion, rvec, tvec, 0.01)
-                    print(f"id = {ids[i]} --> tvec = {tvec}")
+                    x, y, z = tvec[0][0]
+                    top_left, top_right, bottom_right, bottom_left = corners[i][0]
+                    # print(f"horizontal = {x}, distance = {z}")
+                    print(f"{tvec}")
+                    h, w = img.shape[:2]
+                    # print(f"offset from center: {x - w}")
+                    # print(f"Corners = {corners[i]}")
             cv2.imshow('img', img)
             k = cv2.waitKey(30) & 0xff
             if k == 27:
@@ -51,6 +57,6 @@ def loadCalib(caliberation_file: Path):
 
 if __name__ == '__main__':
     intrinsics, distortion, new_intrinsics, roi = loadCalib(Path("calib.npz"))
-    print(type(intrinsics), type(distortion))
-    # main(markerSize=5, totalMarkers=250, should_draw_axis=True,
-    #      intrinsics=intrinsics, distortion=distortion)
+    # print(type(intrinsics), type(distortion))
+    main(markerSize=5, totalMarkers=250, should_draw_axis=True,
+         intrinsics=intrinsics, distortion=distortion)
