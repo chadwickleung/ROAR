@@ -4,6 +4,7 @@ from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 import cv2
 import cv2.aruco as aruco
+import numpy as np
 
 
 class ArucoFollowingAgent(Agent):
@@ -17,6 +18,26 @@ class ArucoFollowingAgent(Agent):
         self.distance_threshold = 0.012  # in tvec unit
         self.left_threshold = 0.0018
         self.right_threshold = 0.013
+
+        self.steering = 0
+
+        self.top_left = [0, 0] # [x, y]
+        self.top_right = [0, 0]
+        self.bottom_left = [0, 0]
+        self.bottom_right = [0, 0]
+
+        self.left_slope = (self.top_left[1] - self.bottom_left[1]) / (self.top_left[0] - self.bottom_left[0])
+        self.right_slope = (self.top_right[1] - self.bottom_right[1]) / (self.top_right[0] - self.bottom_right[0])
+
+        self.left_y_intercept = self.top_left[1] - self.left_slope * self.top_left[0]
+        self.right_y_intercept = self.top_right[1] - self.right_slope * self.top_right[0]
+
+        self.left_x_given_y = lambda y: (y - self.left_y_intercept) / self.left_slope - self.left_threshold
+        self.right_x_given_y = lambda y: (y - self.right_y_intercept) / self.right_slope + self.right_threshold
+
+
+
+
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super().run_step(sensors_data=sensors_data, vehicle=vehicle)
@@ -51,13 +72,14 @@ class ArucoFollowingAgent(Agent):
                 cv2.imshow("img", img)
                 cv2.waitKey(1)
 
+                top_left, top_right, bottom_right, bottom_left = bbox[self.tracking_id][0]
                 if z < self.distance_threshold:
                     print("Stop")
                     return VehicleControl(throttle = 0, steering = 0)
-                elif x < self.left_threshold:
+                elif top_left[0] < self.left_x_given_y(top_left[1]):
                     print("Turn left")
                     return VehicleControl(throttle = 0.2, steering = -1)
-                elif x > self.right_threshold:
+                elif top_right[0] > self.right_x_given_y(top_right[1]):
                     print("Turn right")
                     return VehicleControl(throttle = 0.2, steering = 1)
 
