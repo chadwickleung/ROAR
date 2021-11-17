@@ -15,8 +15,20 @@ class UDPMultiCastAgent(Agent):
                                                       threaded=True,
                                                       update_interval=0.1)
         self.add_threaded_module(self.udp_multicast)
+        self.target_x
+        self.target_y
+        self.target_z
+        self.throttle
+        self.steering
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super().run_step(sensors_data=sensors_data, vehicle=vehicle)
-        self.udp_multicast.send_msg(f"{'car_2'},{','.join(map(str, self.vehicle.to_array()))}")
+        self.udp_multicast.send_msg(f"{'chadwick'},{','.join(map(str, self.vehicle.to_array()))}")
+        target = 'Xingyu'
+        if self.udp_multicast.data[0] == target:
+            print(self.udp_multicast.data)
+            self.target_x, self.target_y, self.target_z = self.udp_multicast.data[1:4]
+
+
+
         return VehicleControl(throttle=0, steering=0)

@@ -23,6 +23,7 @@ class UDPMulticastCommunicator(Module):
                                   socket.IP_MULTICAST_TTL,
                                   self.ttl)
         self.counter = 0
+        self.data = []
 
     def run_in_series(self, **kwargs):
         try:
@@ -31,8 +32,8 @@ class UDPMulticastCommunicator(Module):
                 self.reconnect()
                 self.counter = 0
             data: bytes = self.recv_sock.recv(1024)
-            data = data.decode('utf-8').split(",")
-            print(data)
+            self.data = data.decode('utf-8').split(",")
+            # print(data)
         except socket.timeout as e:
             pass
         except Exception as e:
