@@ -114,16 +114,12 @@ if __name__ == '__main__':
                 json.dump(ios_config.dict(), ios_config_file_path.open('w'), indent=4)
 
         if success or args.reconnect is False:
-            agent = ArucoFollowingAgent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
-<<<<<<< HEAD
-            ios_runner = iOSRunner(agent=agent, ios_config=ios_config)
-            ios_runner.start_game_loop(auto_pilot=args.auto)
-=======
+            agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
+
             if args.use_unity:
                 runner = iOSUnityRunner(agent=agent, ios_config=ios_config)
             else:
                 runner = iOSRunner(agent=agent, ios_config=ios_config)
             runner.start_game_loop(auto_pilot=args.auto)
->>>>>>> f93efdd278a818f753721f2841127fd711283eb0
     except Exception as e:
         print(f"Something bad happened: {e}")
