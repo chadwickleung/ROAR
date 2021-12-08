@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from ROAR_iOS.ios_runner import iOSRunner
 from ROAR.configurations.configuration import Configuration as AgentConfig
@@ -5,12 +6,14 @@ from ROAR_iOS.config_model import iOSConfig
 from ROAR_Unity.unity_runner import iOSUnityRunner
 # from ROAR.agent_module.ios_agent import iOSAgent
 # from ROAR.agent_module.free_space_auto_agent import FreeSpaceAutoAgent
-# from ROAR.agent_module.line_following_agent_2 import LineFollowingAgent
+from ROAR.agent_module.occupancy_map_agent import OccupancyMapAgent
+from ROAR.agent_module.line_following_agent_2 import LineFollowingAgent
 from ROAR.agent_module.special_agents.recording_agent import RecordingAgent
 from ROAR.agent_module.traffic_light_detector_agent import TrafficLightDectectorAgent
 from ROAR.agent_module.aruco_following_agent import ArucoFollowingAgent
 from ROAR.agent_module.udp_multicast_agent import UDPMultiCastAgent
 from ROAR.agent_module.forward_only_agent import ForwardOnlyAgent
+from ROAR.agent_module.cs249_agent import CS249Agent
 from ROAR.utilities_module.vehicle_models import Vehicle
 import logging
 import argparse
@@ -30,8 +33,43 @@ class mode_list(list):
         return super(mode_list, self).__contains__(other.lower())
 
 
+def showIPUntilAckUDP():
+    port = 8890
+    img = np.array(qrcode.make(f"{get_ip(),port}").convert('RGB'))
+    success = False
+    addr = None
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0.1)
+
+    try:
+        s.bind((get_ip(), port))
+        while success is False:
+            try:
+                cv2.imshow("Scan this code to connect to phone", img)
+                k = cv2.waitKey(1) & 0xff
+                seg, addr = s.recvfrom(1024)  # this command might timeout
+
+                if k == ord('q') or k == 27:
+                    s.close()
+                    break
+                addr = addr
+                success = True
+                for i in range(10):
+                    s.sendto(b"hi", addr)
+            except socket.timeout as e:
+                logging.info(f"Please tap on the ip address to scan QR code. ({get_ip()}:{8008}). {e}")
+    except Exception as e:
+        logging.error(f"Unable to bind socket: {e}")
+    finally:
+        s.close()
+        cv2.destroyWindow("Scan this code to connect to phone")
+    return success, addr[0]
+
+
 def showIPUntilAck():
-    img = np.array(qrcode.make(f"{get_ip()}").convert('RGB'))
+    port = 40001
+    img = np.array(qrcode.make(f"{get_ip()},{port}").convert('RGB'))
     success = False
     addr = None
     print("Displaying QR Code")
@@ -39,7 +77,7 @@ def showIPUntilAck():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     try:
-        s.bind((get_ip(), 8008))
+        s.bind((get_ip(), port))
         s.settimeout(1)
         while True:
             try:
@@ -84,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument("-auto", action='store_true', help="Enable auto control")
     parser.add_argument("-m", "--mode", choices=choices, help="AR or VR [WARNING not implemented yet!]", default="vr")
     parser.add_argument("-r", "--reconnect", action='store_true', help="Scan QR code to attach phone to PC")
-    parser.add_argument("-u", "--use_unity", type=str2bool, default=False,
+    parser.add_argument("-u", "--use_unity", action='store_true',
                         help="Use unity as rendering and control service")
     parser.add_argument("-g", "--use_glove", help="use glove based controller by supplying its ip address!")
     args = parser.parse_args()
@@ -112,14 +150,19 @@ if __name__ == '__main__':
             if success:
                 ios_config.ios_ip_addr = addr
                 json.dump(ios_config.dict(), ios_config_file_path.open('w'), indent=4)
-
+                time.sleep(2)
         if success or args.reconnect is False:
+<<<<<<< HEAD
             agent = UDPMultiCastAgent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
 
             if args.use_unity:
                 runner = iOSUnityRunner(agent=agent, ios_config=ios_config)
             else:
                 runner = iOSRunner(agent=agent, ios_config=ios_config)
+=======
+            agent = CS249Agent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
+            runner = iOSUnityRunner(agent=agent, ios_config=ios_config, is_unity=args.use_unity)
+>>>>>>> 5ec3c1647038fec7991c53793b1430f44d86032e
             runner.start_game_loop(auto_pilot=args.auto)
     except Exception as e:
         print(f"Something bad happened: {e}")
