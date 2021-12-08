@@ -4,15 +4,6 @@ from ROAR.utilities_module.vehicle_models import Vehicle
 from ROAR.utilities_module.vehicle_models import VehicleControl
 from collections import deque
 import numpy as np
-<<<<<<< HEAD
-
-class SimplePIDController(Controller):
-    def __init__(self, agent, distance_to_keep=0.5, center_x=-0.2, **kwargs):
-        super().__init__(agent, **kwargs)
-
-        self.yaw_error_buffer = deque(maxlen=20)
-
-=======
 import math
 from typing import List
 

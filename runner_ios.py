@@ -143,7 +143,6 @@ if __name__ == '__main__':
                 exit(0)
         else:
             ios_config.should_use_glove = False
-
         success = False
         if args.reconnect:
             success, addr = showIPUntilAck()
@@ -152,17 +151,11 @@ if __name__ == '__main__':
                 json.dump(ios_config.dict(), ios_config_file_path.open('w'), indent=4)
                 time.sleep(2)
         if success or args.reconnect is False:
-<<<<<<< HEAD
-            agent = UDPMultiCastAgent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
-
-            if args.use_unity:
-                runner = iOSUnityRunner(agent=agent, ios_config=ios_config)
-            else:
-                runner = iOSRunner(agent=agent, ios_config=ios_config)
-=======
+            print("0")
             agent = CS249Agent(vehicle=Vehicle(), agent_settings=agent_config, should_init_default_cam=True)
+            print("1")
             runner = iOSUnityRunner(agent=agent, ios_config=ios_config, is_unity=args.use_unity)
->>>>>>> 5ec3c1647038fec7991c53793b1430f44d86032e
+            print("2")
             runner.start_game_loop(auto_pilot=args.auto)
     except Exception as e:
         print(f"Something bad happened: {e}")
